@@ -200,20 +200,38 @@ def api_login(payload: schemas.LoginRequest, db: Session = Depends(get_db)):
 
 
 @app.get("/control-results", response_model=list[schemas.ControlResultOut])
-def get_control_results(db: Session = Depends(get_db)):
-    results = db.query(models.ControlResult).order_by(models.ControlResult.evaluated_at.desc()).all()
+def get_control_results(request: Request, db: Session = Depends(get_db)):
+    # Was unauthenticated and unscoped — any caller could see every org's
+    # control results. Now requires login and filters to the caller's org.
+    user = require_login(request, db)
+    if isinstance(user, RedirectResponse):
+        raise HTTPException(status_code=401, detail="Login required")
+    results = db.query(models.ControlResult).filter(
+        models.ControlResult.organization_id == user.organization_id
+    ).order_by(models.ControlResult.evaluated_at.desc()).all()
     return [schemas.ControlResultOut(id=r.id, status=r.status, score=float(r.score),
                                       result_summary=r.result_summary) for r in results]
 
 
 @app.get("/findings", response_model=None)
 def get_findings(request: Request, db: Session = Depends(get_db)):
+    # Was: only the HTML branch checked login, and neither branch filtered
+    # by org — a plain API request (no Accept: text/html header) returned
+    # every organization's findings with zero authentication. Now: login is
+    # required up front for both branches, and results are always org-scoped.
+    user = require_login(request, db)
+    if isinstance(user, RedirectResponse):
+        accept = request.headers.get("accept", "")
+        if "text/html" in accept:
+            return user  # redirect to /login
+        raise HTTPException(status_code=401, detail="Login required")
+
+    findings = db.query(models.Finding).filter(
+        models.Finding.organization_id == user.organization_id
+    ).order_by(models.Finding.created_at.desc()).all()
+
     accept = request.headers.get("accept", "")
-    findings = db.query(models.Finding).order_by(models.Finding.created_at.desc()).all()
     if "text/html" in accept:
-        user = require_login(request, db)
-        if isinstance(user, RedirectResponse):
-            return user
         return templates.TemplateResponse("findings.html", base_ctx(
             request, user, db, findings=findings, active="findings"))
     return [schemas.FindingOut(id=f.id, title=f.title, description=f.description,
@@ -234,13 +252,29 @@ def close_finding(finding_id: str, request: Request, db: Session = Depends(get_d
 
 
 @app.get("/dashboard/summary", response_model=schemas.DashboardSummary)
-def get_dashboard_summary(db: Session = Depends(get_db)):
-    latest_result = db.query(models.ControlResult).order_by(models.ControlResult.evaluated_at.desc()).first()
-    passed_controls = db.query(models.ControlResult).filter(models.ControlResult.status == "pass").count()
-    failed_controls = db.query(models.ControlResult).filter(models.ControlResult.status == "fail").count()
+def get_dashboard_summary(request: Request, db: Session = Depends(get_db)):
+    # Was unauthenticated and unscoped — leaked aggregate compliance scores
+    # and open-finding counts for every org to any caller. Now requires
+    # login and every count is filtered to the caller's own organization.
+    user = require_login(request, db)
+    if isinstance(user, RedirectResponse):
+        raise HTTPException(status_code=401, detail="Login required")
+
+    org_id = user.organization_id
+    latest_result = db.query(models.ControlResult).filter(
+        models.ControlResult.organization_id == org_id
+    ).order_by(models.ControlResult.evaluated_at.desc()).first()
+    passed_controls = db.query(models.ControlResult).filter(
+        models.ControlResult.organization_id == org_id, models.ControlResult.status == "pass"
+    ).count()
+    failed_controls = db.query(models.ControlResult).filter(
+        models.ControlResult.organization_id == org_id, models.ControlResult.status == "fail"
+    ).count()
     total_results = passed_controls + failed_controls
     compliance_score = round((passed_controls / total_results) * 100, 2) if total_results else 0.0
-    open_findings = db.query(models.Finding).filter(models.Finding.status == "open").count()
+    open_findings = db.query(models.Finding).filter(
+        models.Finding.organization_id == org_id, models.Finding.status == "open"
+    ).count()
     return schemas.DashboardSummary(
         compliance_score=compliance_score, passed_controls=passed_controls,
         failed_controls=failed_controls, open_findings=open_findings,
@@ -302,9 +336,17 @@ def evidence_page(request: Request, db: Session = Depends(get_db)):
 
 @app.post("/evidence/upload", response_model=None)
 async def upload_and_evaluate(request: Request, file: UploadFile = File(...), db: Session = Depends(get_db)):
+    # Was: unauthenticated requests silently fell back to whatever org
+    # happened to be first in the database, so anyone could upload evidence
+    # and trigger control evaluation against a real org's data with zero
+    # credentials. Now login is required, same as every other mutating route.
     accept = request.headers.get("accept", "")
-    user = get_current_user(request, db)
-    org_id = user.organization_id if user else db.query(models.Organization).first().id
+    user = require_login(request, db)
+    if isinstance(user, RedirectResponse):
+        if "text/html" in accept:
+            return user
+        raise HTTPException(status_code=401, detail="Login required")
+    org_id = user.organization_id
 
     org = db.query(models.Organization).filter(models.Organization.id == org_id).first()
     if not org:
