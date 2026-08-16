@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Framework Mapping — ControlTrace AI{% endblock %}
+{% block page_title %}Framework Mapping{% endblock %}
+{% block page_sub %}Cross-framework compliance coverage in one view{% endblock %}
+
+{% block content %}
+<div class="panel">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Framework</th><th>Version</th><th>Total Controls</th><th>Evaluated</th><th>Passed</th><th>Failed</th><th>Score</th></tr></thead>
+      <tbody>
+        {% for row in fw_scores %}
+        <tr>
+          <td><b>{{ row.framework.name }}</b></td>
+          <td>{{ row.framework.version }}</td>
+          <td>{{ row.total_controls }}</td>
+          <td>{{ row.evaluated }}</td>
+          <td>{{ row.passed }}</td>
+          <td>{{ row.failed }}</td>
+          <td style="width:160px;">
+            {% if row.score is not none %}
+            <div class="bar-track"><div class="bar-fill {% if row.score >= 80 %}good{% elif row.score >= 50 %}warn{% else %}bad{% endif %}" style="width:{{ row.score }}%;"></div></div>
+            <div class="small-muted">{{ row.score }}%</div>
+            {% else %}<span class="small-muted">Not evaluated</span>{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

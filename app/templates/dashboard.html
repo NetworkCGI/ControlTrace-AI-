@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}Executive Dashboard — ControlTrace AI{% endblock %}
+{% block page_title %}Executive Dashboard{% endblock %}
+{% block page_sub %}{{ summary.organization }} · live compliance posture{% endblock %}
+
+{% block content %}
+<div class="cards-row">
+  <div class="card">
+    <div class="kpi-label">Compliance Score</div>
+    <div class="kpi-value">{{ summary.compliance_score }}%</div>
+    <div class="kpi-sub">{{ summary.passed_controls }} passed / {{ summary.failed_controls }} failed</div>
+  </div>
+  <div class="card">
+    <div class="kpi-label">Open Findings</div>
+    <div class="kpi-value">{{ summary.open_findings }}</div>
+    <div class="kpi-sub"><a class="link-btn" href="/findings">View findings →</a></div>
+  </div>
+  <div class="card">
+    <div class="kpi-label">Open Risks</div>
+    <div class="kpi-value">{{ summary.open_risks }}</div>
+    <div class="kpi-sub"><a class="link-btn" href="/risks">View risk register →</a></div>
+  </div>
+  <div class="card">
+    <div class="kpi-label">Open Tasks</div>
+    <div class="kpi-value">{{ summary.open_tasks }}</div>
+    <div class="kpi-sub"><a class="link-btn" href="/workflow">View workflow →</a></div>
+  </div>
+  <div class="card">
+    <div class="kpi-label">Frameworks Tracked</div>
+    <div class="kpi-value">{{ summary.total_frameworks }}</div>
+    <div class="kpi-sub">{{ summary.total_controls }} controls in library</div>
+  </div>
+</div>
+
+<div class="two-col">
+  <div class="panel">
+    <div class="panel-head">
+      <h2>Compliance by Framework</h2>
+      <span class="hint"><a class="link-btn" href="/framework-mapping">Full mapping →</a></span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Framework</th><th>Coverage</th><th>Score</th></tr></thead>
+        <tbody>
+          {% for row in fw_scores[:10] %}
+          <tr>
+            <td>{{ row.framework.name }}<div class="small-muted">{{ row.framework.version }}</div></td>
+            <td>{{ row.evaluated }} / {{ row.total_controls }} evaluated</td>
+            <td style="width:160px;">
+              {% if row.score is not none %}
+              <div class="bar-track"><div class="bar-fill {% if row.score >= 80 %}good{% elif row.score >= 50 %}warn{% else %}bad{% endif %}" style="width:{{ row.score }}%;"></div></div>
+              <div class="small-muted">{{ row.score }}%</div>
+              {% else %}
+              <span class="small-muted">Not evaluated</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <h2>Top Risks</h2>
+      <span class="hint"><a class="link-btn" href="/risks">Risk register →</a></span>
+    </div>
+    {% if top_risks %}
+    {% for r in top_risks %}
+    <div class="kanban-card">
+      <b>{{ r.title }}</b>
+      <div class="meta"><span class="badge badge-{{ r.rating }}">{{ r.rating }}</span> · owner: {{ r.owner or "unassigned" }}</div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="empty-state">No open risks recorded.</div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="panel">
+  <div class="panel-head">
+    <h2>Recent Findings</h2>
+    <span class="hint"><a class="link-btn" href="/findings">All findings →</a></span>
+  </div>
+  {% if findings %}
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Title</th><th>Severity</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for f in findings %}
+        <tr>
+          <td>{{ f.title }}</td>
+          <td><span class="badge badge-{{ f.severity }}">{{ f.severity }}</span></td>
+          <td><span class="badge badge-{{ f.status }}">{{ f.status }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">No findings yet. Upload evidence to run your first control evaluation.</div>
+  {% endif %}
+</div>
+{% endblock %}

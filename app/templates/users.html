@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}User Management — ControlTrace AI{% endblock %}
+{% block page_title %}User Management{% endblock %}
+{% block page_sub %}Role-based access control (RBAC) for your organization{% endblock %}
+
+{% block content %}
+<div class="panel">
+  <div class="panel-head"><h2>Invite a user</h2></div>
+  <form method="post" action="/users/create">
+    <div class="form-grid">
+      <div class="field"><label>Email</label><input type="email" name="email" required /></div>
+      <div class="field"><label>Full name</label><input name="full_name" /></div>
+      <div class="field"><label>Temporary password</label><input type="text" name="password" required /></div>
+      <div class="field"><label>Role</label>
+        <select name="role">
+          <option value="viewer">Viewer — read only</option>
+          <option value="auditor">Auditor — can edit records</option>
+          <option value="org_admin">Administrator — full access</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-actions"><button class="btn btn-primary btn-sm" type="submit">Create user</button></div>
+  </form>
+</div>
+
+<div class="panel">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Joined</th></tr></thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td>{{ u.full_name or "—" }}</td>
+          <td>{{ u.email }}</td>
+          <td><span class="pill">{{ roles.get(u.role, u.role) }}</span></td>
+          <td>{{ u.created_at.strftime("%Y-%m-%d") }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

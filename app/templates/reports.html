@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Reports — ControlTrace AI{% endblock %}
+{% block page_title %}Reports{% endblock %}
+{% block page_sub %}Export compliance data for stakeholders and auditors{% endblock %}
+
+{% block content %}
+<div class="cards-row">
+  <div class="card"><div class="kpi-label">Open Findings</div><div class="kpi-value">{{ open_findings }}</div></div>
+  <div class="card"><div class="kpi-label">Open Risks</div><div class="kpi-value">{{ open_risks }}</div></div>
+  <div class="card"><div class="kpi-label">Frameworks Tracked</div><div class="kpi-value">{{ fw_scores|length }}</div></div>
+</div>
+
+<div class="panel">
+  <div class="panel-head">
+    <h2>Compliance by Framework</h2>
+    <a class="btn btn-outline btn-sm" href="/reports/export.csv">Export CSV</a>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Framework</th><th>Total Controls</th><th>Evaluated</th><th>Passed</th><th>Failed</th><th>Score</th></tr></thead>
+      <tbody>
+        {% for row in fw_scores %}
+        <tr>
+          <td>{{ row.framework.name }}</td>
+          <td>{{ row.total_controls }}</td>
+          <td>{{ row.evaluated }}</td>
+          <td>{{ row.passed }}</td>
+          <td>{{ row.failed }}</td>
+          <td>{{ row.score if row.score is not none else "N/A" }}{% if row.score is not none %}%{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Workflow & Tasks — ControlTrace AI{% endblock %}
+{% block page_title %}Workflow &amp; Tasks{% endblock %}
+{% block page_sub %}Remediation and compliance task board{% endblock %}
+
+{% block content %}
+{% if can_edit %}
+<div class="panel">
+  <div class="panel-head"><h2>New task</h2></div>
+  <form method="post" action="/workflow/create" style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
+    <div class="field" style="flex:2;min-width:220px;"><label>Title</label><input name="title" required /></div>
+    <div class="field" style="flex:1;min-width:150px;"><label>Assignee</label><input name="assignee" /></div>
+    <div class="field" style="flex:1;min-width:150px;"><label>Due date</label><input name="due_date" placeholder="YYYY-MM-DD" /></div>
+    <button class="btn btn-primary btn-sm" type="submit" style="margin-bottom:14px;">Add task</button>
+  </form>
+</div>
+{% endif %}
+
+<div class="kanban">
+  {% for stage in stages %}
+  <div class="kanban-col">
+    <h3>{{ stage.replace("_"," ") }} ({{ board[stage]|length }})</h3>
+    {% for t in board[stage] %}
+    <div class="kanban-card">
+      <b>{{ t.title }}</b>
+      <div class="meta">{{ t.assignee or "unassigned" }}{% if t.due_date %} · due {{ t.due_date }}{% endif %}</div>
+      {% if can_edit %}
+      <form method="post" action="/workflow/{{ t.id }}/stage" style="margin-top:6px;">
+        <select name="stage" onchange="this.form.submit()" style="width:100%;padding:4px;font-size:11px;">
+          {% for s in stages %}
+          <option value="{{ s }}" {% if s==stage %}selected{% endif %}>{{ s.replace("_"," ") }}</option>
+          {% endfor %}
+        </select>
+      </form>
+      {% endif %}
+    </div>
+    {% endfor %}
+    {% if not board[stage] %}<div class="small-muted">No tasks</div>{% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

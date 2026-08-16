@@ -1,0 +1,4 @@
+User,MFA Enabled,Is Admin
+admin1@company.com,Yes,Yes
+admin2@company.com,No,Yes
+user1@company.com,Yes,No

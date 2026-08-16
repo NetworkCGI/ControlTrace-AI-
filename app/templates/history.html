@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}History — ControlTrace AI{% endblock %}
+{% block page_title %}Evaluation History{% endblock %}
+{% block page_sub %}Every control evaluation run against uploaded evidence{% endblock %}
+
+{% block content %}
+<div class="panel">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Evaluated</th><th>Status</th><th>Score</th><th>Summary</th></tr></thead>
+      <tbody>
+        {% for r in results %}
+        <tr>
+          <td>{{ r.evaluated_at.strftime("%Y-%m-%d %H:%M") }}</td>
+          <td><span class="badge badge-{{ r.status }}">{{ r.status }}</span></td>
+          <td>{{ r.score }}</td>
+          <td>{{ r.result_summary }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if not results %}<div class="empty-state">No evaluations yet — upload evidence to get started.</div>{% endif %}
+</div>
+{% endblock %}

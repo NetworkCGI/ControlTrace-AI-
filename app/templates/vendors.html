@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Vendor Management — ControlTrace AI{% endblock %}
+{% block page_title %}Vendor Management{% endblock %}
+{% block page_sub %}{{ vendors|length }} third parties tracked{% endblock %}
+
+{% block content %}
+{% if can_edit %}
+<div class="panel">
+  <div class="panel-head"><h2>Add a vendor</h2></div>
+  <form method="post" action="/vendors/create">
+    <div class="form-grid">
+      <div class="field"><label>Vendor name</label><input name="name" required /></div>
+      <div class="field"><label>Service provided</label><input name="service_provided" /></div>
+      <div class="field"><label>Risk tier</label>
+        <select name="risk_tier">
+          <option value="low">Low</option><option value="medium" selected>Medium</option>
+          <option value="high">High</option><option value="critical">Critical</option>
+        </select>
+      </div>
+      <div class="field"><label>Contact email</label><input type="email" name="contact_email" /></div>
+    </div>
+    <div class="form-actions"><button class="btn btn-primary btn-sm" type="submit">Add vendor</button></div>
+  </form>
+</div>
+{% endif %}
+
+<div class="panel">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Vendor</th><th>Service</th><th>Risk Tier</th><th>Status</th><th>Contact</th></tr></thead>
+      <tbody>
+        {% for v in vendors %}
+        <tr>
+          <td><b>{{ v.name }}</b></td>
+          <td>{{ v.service_provided or "—" }}</td>
+          <td><span class="badge badge-{{ v.risk_tier }}">{{ v.risk_tier }}</span></td>
+          <td><span class="badge badge-active">{{ v.status }}</span></td>
+          <td>{{ v.contact_email or "—" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if not vendors %}<div class="empty-state">No vendors tracked yet.</div>{% endif %}
+</div>
+{% endblock %}

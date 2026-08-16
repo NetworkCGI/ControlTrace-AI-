@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Findings — ControlTrace AI{% endblock %}
+{% block page_title %}Findings{% endblock %}
+{% block page_sub %}Issues surfaced by control evaluations{% endblock %}
+
+{% block content %}
+<div class="panel">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Title</th><th>Description</th><th>Severity</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        {% for f in findings %}
+        <tr>
+          <td><b>{{ f.title }}</b></td>
+          <td>{{ f.description }}</td>
+          <td><span class="badge badge-{{ f.severity }}">{{ f.severity }}</span></td>
+          <td><span class="badge badge-{{ f.status }}">{{ f.status }}</span></td>
+          <td>
+            {% if f.status == "open" and can_edit %}
+            <form method="post" action="/findings/{{ f.id }}/close">
+              <button class="btn btn-outline btn-sm" type="submit">Mark closed</button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if not findings %}<div class="empty-state">No findings recorded yet.</div>{% endif %}
+</div>
+{% endblock %}

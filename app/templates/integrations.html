@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Integrations — ControlTrace AI{% endblock %}
+{% block page_title %}Integrations{% endblock %}
+{% block page_sub %}Current and planned data connections{% endblock %}
+
+{% block content %}
+<div class="panel">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Integration</th><th>Category</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for i in catalog %}
+        <tr>
+          <td><b>{{ i.name }}</b></td>
+          <td>{{ i.category }}</td>
+          <td><span class="badge badge-{{ i.status }}">{{ i.status }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="small-muted" style="margin-top:14px;">
+    CSV / manual evidence upload is fully wired up today. The rest of this catalog reflects the
+    integration roadmap — hook them up by extending <code>app/services.py</code> with a connector
+    and pointing it at the Evidence Repository.
+  </p>
+</div>
+{% endblock %}

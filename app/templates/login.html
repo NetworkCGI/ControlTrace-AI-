@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sign in — ControlTrace AI</title>
+<link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="mark">CT</div>
+      <div class="word">Control<span>Trace</span> AI</div>
+    </div>
+    <h1>Sign in to your workspace</h1>
+    <p class="sub">Cybersecurity compliance &amp; risk management</p>
+
+    {% if error %}<div class="error-box">{{ error }}</div>{% endif %}
+
+    <form method="post" action="/login">
+      <input type="hidden" name="next" value="{{ next }}" />
+      <div class="field">
+        <label>Email</label>
+        <input type="email" name="email" required autofocus placeholder="you@company.com" />
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" name="password" required placeholder="••••••••" />
+      </div>
+      <button class="btn btn-primary" type="submit">Sign in</button>
+    </form>
+
+    <div class="demo-creds">
+      <div><b>Demo accounts</b> (seeded automatically):</div>
+      <div>Admin — admin@controltrace.local / Mente1122</div>
+      <div>Auditor — auditor@controltrace.local / Auditor123</div>
+      <div>Viewer — viewer@controltrace.local / Viewer123</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

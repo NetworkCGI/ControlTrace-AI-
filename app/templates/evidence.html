@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Evidence Repository — ControlTrace AI{% endblock %}
+{% block page_title %}Evidence Repository{% endblock %}
+{% block page_sub %}{{ items|length }} evidence items collected{% endblock %}
+
+{% block content %}
+{% if can_edit %}
+<div class="panel">
+  <div class="panel-head">
+    <h2>Upload evidence (MFA status CSV)</h2>
+    <span class="hint">Columns required: User, MFA Enabled, Is Admin</span>
+  </div>
+  <form method="post" action="/evidence/upload" enctype="multipart/form-data" style="display:flex;gap:10px;align-items:center;">
+    <input type="file" name="file" accept=".csv" required />
+    <button class="btn btn-primary btn-sm" type="submit">Upload &amp; evaluate</button>
+  </form>
+</div>
+{% endif %}
+
+<div class="panel">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>File</th><th>Type</th><th>Collected</th><th>Status</th><th>Hash (SHA-256)</th></tr></thead>
+      <tbody>
+        {% for item in items %}
+        {% set f = files_by_id.get(item.evidence_file_id) %}
+        <tr>
+          <td><b>{{ f.file_name if f else "—" }}</b></td>
+          <td>{{ item.evidence_type }}</td>
+          <td>{{ item.collected_at.strftime("%Y-%m-%d %H:%M") }}</td>
+          <td><span class="badge badge-active">{{ item.status }}</span></td>
+          <td><code style="font-size:11px;">{{ (f.file_hash_sha256 if f else "")[:16] }}…</code></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if not items %}<div class="empty-state">No evidence uploaded yet.</div>{% endif %}
+</div>
+{% endblock %}

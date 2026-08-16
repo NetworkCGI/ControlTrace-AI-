@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>{% block title %}ControlTrace AI{% endblock %}</title>
+<link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="mark">CT</div>
+      <div class="word">Control<span>Trace</span> AI</div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-label">Overview</div>
+      <a class="nav-item {% if active=='dashboard' %}active{% endif %}" href="/"><span class="dot"></span> Executive Dashboard</a>
+      <a class="nav-item {% if active=='reports' %}active{% endif %}" href="/reports"><span class="dot"></span> Reports</a>
+      <a class="nav-item {% if active=='notifications' %}active{% endif %}" href="/notifications"><span class="dot"></span> Notifications</a>
+      <a class="nav-item {% if active=='assistant' %}active{% endif %}" href="/assistant"><span class="dot"></span> AI Assistant</a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-label">Compliance</div>
+      <a class="nav-item {% if active=='frameworks' %}active{% endif %}" href="/frameworks"><span class="dot"></span> Frameworks</a>
+      <a class="nav-item {% if active=='controls' %}active{% endif %}" href="/controls"><span class="dot"></span> Control Library</a>
+      <a class="nav-item {% if active=='framework-mapping' %}active{% endif %}" href="/framework-mapping"><span class="dot"></span> Framework Mapping</a>
+      <a class="nav-item {% if active=='findings' %}active{% endif %}" href="/findings"><span class="dot"></span> Findings</a>
+      <a class="nav-item {% if active=='history' %}active{% endif %}" href="/history"><span class="dot"></span> Evaluation History</a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-label">Risk &amp; Governance</div>
+      <a class="nav-item {% if active=='risks' %}active{% endif %}" href="/risks"><span class="dot"></span> Risk Register</a>
+      <a class="nav-item {% if active=='policies' %}active{% endif %}" href="/policies"><span class="dot"></span> Policy Manager</a>
+      <a class="nav-item {% if active=='vendors' %}active{% endif %}" href="/vendors"><span class="dot"></span> Vendor Management</a>
+      <a class="nav-item {% if active=='workflow' %}active{% endif %}" href="/workflow"><span class="dot"></span> Workflow &amp; Tasks</a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-label">Evidence</div>
+      <a class="nav-item {% if active=='evidence' %}active{% endif %}" href="/evidence"><span class="dot"></span> Evidence Repository</a>
+      <a class="nav-item {% if active=='documents' %}active{% endif %}" href="/documents"><span class="dot"></span> Document Library</a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-label">Administration</div>
+      <a class="nav-item {% if active=='audit-log' %}active{% endif %}" href="/audit-log"><span class="dot"></span> Audit Log</a>
+      <a class="nav-item {% if active=='integrations' %}active{% endif %}" href="/integrations"><span class="dot"></span> Integrations</a>
+      {% if is_admin %}
+      <a class="nav-item {% if active=='users' %}active{% endif %}" href="/users"><span class="dot"></span> User Management</a>
+      <a class="nav-item {% if active=='settings' %}active{% endif %}" href="/settings"><span class="dot"></span> Organization Settings</a>
+      {% endif %}
+      <a class="nav-item" href="/docs" target="_blank"><span class="dot"></span> API Docs</a>
+    </div>
+
+    <div class="sidebar-foot">
+      {% if user %}
+      <div class="user-chip">
+        <div class="avatar">{{ (user.full_name or user.email)[0]|upper }}</div>
+        <div class="who">
+          <b>{{ user.full_name or user.email }}</b>
+          <span>{{ role_label }}</span>
+        </div>
+      </div>
+      <a class="logout-link" href="/logout">Sign out</a>
+      {% endif %}
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div>
+        <h1>{% block page_title %}Dashboard{% endblock %}</h1>
+        <div class="sub">{% block page_sub %}{% endblock %}</div>
+      </div>
+      <div class="topbar-actions">
+        <a class="bell" href="/notifications" title="Notifications">
+          🔔
+          {% if unread_notifications and unread_notifications > 0 %}
+          <span class="badge">{{ unread_notifications }}</span>
+          {% endif %}
+        </a>
+      </div>
+    </div>
+    <div class="content">
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Frameworks — ControlTrace AI{% endblock %}
+{% block page_title %}Compliance Frameworks{% endblock %}
+{% block page_sub %}{{ frameworks|length }} frameworks in your library{% endblock %}
+
+{% block content %}
+<div class="cards-row" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr));">
+  {% for fw in frameworks %}
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+      <div class="kpi-label">{{ fw.category or "Framework" }}</div>
+      <span class="pill">{{ fw.version }}</span>
+    </div>
+    <div style="font-size:16px;font-weight:700;margin-top:6px;">{{ fw.name }}</div>
+    <p class="small-muted" style="margin:8px 0 12px;line-height:1.5;">{{ fw.description }}</p>
+    <a class="link-btn" href="/controls?framework_id={{ fw.id }}">View controls →</a>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

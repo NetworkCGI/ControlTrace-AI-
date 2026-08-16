@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}AI Assistant — ControlTrace AI{% endblock %}
+{% block page_title %}AI Assistant{% endblock %}
+{% block page_sub %}Ask about your risks, findings, and compliance score{% endblock %}
+
+{% block content %}
+<div class="panel">
+  <form method="post" action="/assistant/ask">
+    <div style="display:flex;gap:10px;">
+      <input name="question" required placeholder="e.g. What are our top risks right now?" style="flex:1;padding:10px 12px;border:1px solid var(--gray-300);border-radius:8px;" />
+      <button class="btn btn-primary btn-sm" type="submit">Ask</button>
+    </div>
+  </form>
+  <div class="small-muted" style="margin-top:10px;">
+    Answers are generated from your live compliance data. Set the <code>ANTHROPIC_API_KEY</code>
+    environment variable to enable full conversational answers powered by Claude — without it,
+    a built-in rules-based insights engine answers using the same data.
+  </div>
+</div>
+
+{% if question %}
+<div class="panel">
+  <div class="chat-question">{{ question }}</div>
+  <div class="chat-bubble">{{ answer }}</div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Control Library — ControlTrace AI{% endblock %}
+{% block page_title %}Control Library{% endblock %}
+{% block page_sub %}{{ controls|length }} controls shown{% endblock %}
+
+{% block content %}
+<div class="pill-row">
+  <a class="pill {% if not selected_framework_id %}active-pill{% endif %}" href="/controls">All frameworks</a>
+  {% for fw in frameworks %}
+  <a class="pill {% if selected_framework_id==fw.id %}active-pill{% endif %}" href="/controls?framework_id={{ fw.id }}">{{ fw.name }}</a>
+  {% endfor %}
+</div>
+
+<div class="panel">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Code</th><th>Title</th><th>Category</th><th>Severity</th><th>Framework</th></tr></thead>
+      <tbody>
+        {% for c in controls %}
+        <tr>
+          <td><code>{{ c.control_code }}</code></td>
+          <td><b>{{ c.title }}</b><div class="small-muted">{{ c.description }}</div></td>
+          <td>{{ c.category or "—" }}</td>
+          <td><span class="badge badge-{{ c.severity }}">{{ c.severity }}</span></td>
+          <td>{{ c.framework.name if c.framework else "—" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if not controls %}
+  <div class="empty-state">No controls match this filter.</div>
+  {% endif %}
+</div>
+{% endblock %}

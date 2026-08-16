@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Organization Settings — ControlTrace AI{% endblock %}
+{% block page_title %}Organization Settings{% endblock %}
+{% block page_sub %}Workspace configuration{% endblock %}
+
+{% block content %}
+<div class="panel" style="max-width:520px;">
+  <form method="post" action="/settings/update">
+    <div class="field"><label>Organization name</label><input name="name" value="{{ org.name }}" required /></div>
+    <div class="field"><label>Industry</label><input name="industry" value="{{ org.industry or '' }}" /></div>
+    <div class="form-actions"><button class="btn btn-primary btn-sm" type="submit">Save changes</button></div>
+  </form>
+</div>
+{% endblock %}

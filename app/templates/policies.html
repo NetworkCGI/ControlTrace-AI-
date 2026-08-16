@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Policy Manager — ControlTrace AI{% endblock %}
+{% block page_title %}Policy Manager{% endblock %}
+{% block page_sub %}{{ policies|length }} policies{% endblock %}
+
+{% block content %}
+{% if can_edit %}
+<div class="panel">
+  <div class="panel-head"><h2>Draft a new policy</h2></div>
+  <form method="post" action="/policies/create">
+    <div class="form-grid">
+      <div class="field"><label>Title</label><input name="title" required /></div>
+      <div class="field"><label>Category</label><input name="category" /></div>
+      <div class="field"><label>Owner</label><input name="owner" /></div>
+      <div class="field"><label>Linked Framework</label><input name="linked_framework" placeholder="e.g. ISO/IEC 27001" /></div>
+    </div>
+    <div class="field" style="margin-top:10px;"><label>Body / Summary</label><textarea name="body" rows="3"></textarea></div>
+    <div class="form-actions"><button class="btn btn-primary btn-sm" type="submit">Create policy</button></div>
+  </form>
+</div>
+{% endif %}
+
+<div class="panel">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Policy</th><th>Category</th><th>Owner</th><th>Linked Framework</th><th>Version</th><th>Status</th>{% if can_edit %}<th></th>{% endif %}</tr></thead>
+      <tbody>
+        {% for p in policies %}
+        <tr>
+          <td><b>{{ p.title }}</b><div class="small-muted">{{ p.body }}</div></td>
+          <td>{{ p.category or "—" }}</td>
+          <td>{{ p.owner or "—" }}</td>
+          <td>{{ p.linked_framework or "—" }}</td>
+          <td>v{{ p.version }}</td>
+          <td><span class="badge badge-{{ p.status }}">{{ p.status.replace("_"," ") }}</span></td>
+          {% if can_edit %}
+          <td>
+            <form method="post" action="/policies/{{ p.id }}/status" style="display:flex;gap:6px;">
+              <select name="status" style="padding:4px 6px;font-size:12px;">
+                <option value="draft" {% if p.status=="draft" %}selected{% endif %}>Draft</option>
+                <option value="in_review" {% if p.status=="in_review" %}selected{% endif %}>In Review</option>
+                <option value="approved" {% if p.status=="approved" %}selected{% endif %}>Approved</option>
+                <option value="retired" {% if p.status=="retired" %}selected{% endif %}>Retired</option>
+              </select>
+              <button class="btn btn-outline btn-sm" type="submit">Update</button>
+            </form>
+          </td>
+          {% endif %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if not policies %}<div class="empty-state">No policies yet.</div>{% endif %}
+</div>
+{% endblock %}

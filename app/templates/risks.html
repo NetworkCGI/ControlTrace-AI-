@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Risk Register — ControlTrace AI{% endblock %}
+{% block page_title %}Risk Register{% endblock %}
+{% block page_sub %}{{ risks|length }} risks tracked, sorted by score{% endblock %}
+
+{% block content %}
+{% if can_edit %}
+<div class="panel">
+  <div class="panel-head"><h2>Log a new risk</h2></div>
+  <form method="post" action="/risks/create">
+    <div class="form-grid">
+      <div class="field"><label>Title</label><input name="title" required /></div>
+      <div class="field"><label>Category</label><input name="category" placeholder="e.g. Access Control" /></div>
+      <div class="field"><label>Owner</label><input name="owner" /></div>
+      <div class="field"><label>Likelihood (1-5)</label><input type="number" name="likelihood" min="1" max="5" value="3" /></div>
+      <div class="field"><label>Impact (1-5)</label><input type="number" name="impact" min="1" max="5" value="3" /></div>
+      <div class="field"><label>Treatment</label>
+        <select name="treatment">
+          <option value="mitigate">Mitigate</option><option value="accept">Accept</option>
+          <option value="transfer">Transfer</option><option value="avoid">Avoid</option>
+        </select>
+      </div>
+    </div>
+    <div class="field" style="margin-top:10px;"><label>Description</label><textarea name="description" rows="2"></textarea></div>
+    <div class="form-actions"><button class="btn btn-primary btn-sm" type="submit">Add risk</button></div>
+  </form>
+</div>
+{% endif %}
+
+<div class="panel">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Risk</th><th>Category</th><th>Owner</th><th>Score</th><th>Rating</th><th>Status</th>{% if can_edit %}<th></th>{% endif %}</tr></thead>
+      <tbody>
+        {% for r in risks %}
+        <tr>
+          <td><b>{{ r.title }}</b><div class="small-muted">{{ r.description }}</div></td>
+          <td>{{ r.category or "—" }}</td>
+          <td>{{ r.owner or "unassigned" }}</td>
+          <td>{{ r.score }} ({{ r.likelihood }}×{{ r.impact }})</td>
+          <td><span class="badge badge-{{ r.rating }}">{{ r.rating }}</span></td>
+          <td><span class="badge badge-{{ r.status }}">{{ r.status }}</span></td>
+          {% if can_edit %}
+          <td>
+            <form method="post" action="/risks/{{ r.id }}/status" style="display:flex;gap:6px;">
+              <select name="status" style="padding:4px 6px;font-size:12px;">
+                <option value="open" {% if r.status=="open" %}selected{% endif %}>Open</option>
+                <option value="mitigating" {% if r.status=="mitigating" %}selected{% endif %}>Mitigating</option>
+                <option value="accepted" {% if r.status=="accepted" %}selected{% endif %}>Accepted</option>
+                <option value="closed" {% if r.status=="closed" %}selected{% endif %}>Closed</option>
+              </select>
+              <button class="btn btn-outline btn-sm" type="submit">Update</button>
+            </form>
+          </td>
+          {% endif %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if not risks %}<div class="empty-state">No risks logged yet.</div>{% endif %}
+</div>
+{% endblock %}

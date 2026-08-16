@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Document Library — ControlTrace AI{% endblock %}
+{% block page_title %}Document Library{% endblock %}
+{% block page_sub %}{{ documents|length }} documents{% endblock %}
+
+{% block content %}
+{% if can_edit %}
+<div class="panel">
+  <div class="panel-head"><h2>Upload a document</h2></div>
+  <form method="post" action="/documents/upload" enctype="multipart/form-data">
+    <div class="form-grid">
+      <div class="field"><label>Title</label><input name="title" required /></div>
+      <div class="field"><label>Category</label><input name="category" placeholder="e.g. Contracts, Certifications" /></div>
+      <div class="field"><label>File</label><input type="file" name="file" /></div>
+    </div>
+    <div class="field" style="margin-top:10px;"><label>Notes</label><textarea name="notes" rows="2"></textarea></div>
+    <div class="form-actions"><button class="btn btn-primary btn-sm" type="submit">Upload</button></div>
+  </form>
+</div>
+{% endif %}
+
+<div class="panel">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Title</th><th>Category</th><th>File</th><th>Uploaded</th></tr></thead>
+      <tbody>
+        {% for d in documents %}
+        <tr>
+          <td><b>{{ d.title }}</b><div class="small-muted">{{ d.notes }}</div></td>
+          <td>{{ d.category or "—" }}</td>
+          <td>{{ d.file_name or "—" }}</td>
+          <td>{{ d.uploaded_at.strftime("%Y-%m-%d") }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if not documents %}<div class="empty-state">No documents uploaded yet.</div>{% endif %}
+</div>
+{% endblock %}
